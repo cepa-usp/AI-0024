@@ -2,8 +2,11 @@ package
 {
 	import cepa.utils.ToolTip;
 	import fl.transitions.easing.None;
+	import fl.transitions.easing.Regular;
 	import fl.transitions.Tween;
+	import fl.transitions.TweenEvent;
 	import flash.display.BitmapData;
+	import flash.display.Sprite;
 	import flash.display.Stage;
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
@@ -221,7 +224,7 @@ package
 		{
 			if (Math.abs(latitudeTitanic - latitudeClick) <= 2 && Math.abs(longitudeTitanic - longitudeClick) <= 2)
 			{
-				feedbackScreen.setText("Parabéns!\nVocê encontrou o Titanic!");
+				feedbackScreen.setText("Parabéns!\nVocê encontrou o Titanic.");
 			}
 			else
 			{
@@ -239,8 +242,11 @@ package
 				alfineteClick = null;
 			}
 			
-			upPoint.x = -1260;
-			upPoint.y = 450;
+			//upPoint.x = -1260;
+			//upPoint.y = 450;
+			
+			theta = -3.137547476611862;
+			phi = 1.5743194505715339;
 			rotating(null);
 		}
 		
@@ -253,8 +259,10 @@ package
 			viewport.interactive = true;
 			
 			camera.target = null;
-			upPoint.x = -1260;
-			upPoint.y = 450;
+			//upPoint.x = -1260;
+			//upPoint.y = 450;
+			theta = -3.137547476611862;
+			phi = 1.5743194505715339;
 		}
 		
 		/**
@@ -383,14 +391,24 @@ package
 		 */
 		private function initRotation(e:MouseEvent):void 
 		{
-			//if (e.target is Stage)
-			//{
+			if (e.target is Stage)
+			{
+				if (tweenRotTheta != null) {
+					if (tweenRotTheta.isPlaying) tweenRotTheta.stop();
+				}
+				if (tweenRotPhi != null) {
+					if (tweenRotPhi.isPlaying) tweenRotPhi.stop();
+				}
+				
 				stage.addEventListener(Event.ENTER_FRAME, rotating);
 				stage.addEventListener(MouseEvent.MOUSE_UP, stopRotating);
 				clickPoint.x = stage.mouseX;
 				clickPoint.y = stage.mouseY;
-			//}
+			}
 		}
+		
+		private var lastDtheta:Number;
+		private var lastDphi:Number;
 		
 		/**
 		 * @private
@@ -399,25 +417,34 @@ package
 		private function rotating(e:Event):void 
 		{
 			if(e != null){
-				theta = ((upPoint.x - (stage.mouseX - clickPoint.x)) / stage.stageWidth * 100) * Math.PI / 180;// % 360; 
-				phi = ((upPoint.y - (stage.mouseY - clickPoint.y)) / stage.stageHeight * 100 ) * Math.PI / 180;// % 360;
+				//theta = ((upPoint.x - (stage.mouseX - clickPoint.x)) / stage.stageWidth * 100) * Math.PI / 180;// % 360; 
+				//phi = ((upPoint.y - (stage.mouseY - clickPoint.y)) / stage.stageHeight * 100 ) * Math.PI / 180;// % 360;
+				lastDtheta = ((stage.mouseX - clickPoint.x) / 10) * Math.PI / 180;
+				lastDphi = ((stage.mouseY - clickPoint.y) / 10) * Math.PI / 180;
+				theta -= lastDtheta;
+				phi -= lastDphi;
 			}else {
-				theta = ((upPoint.x) / stage.stageWidth * 100) * Math.PI / 180;// % 360; 
-				phi = ((upPoint.y) / stage.stageHeight * 100 ) * Math.PI / 180;// % 360;
+				//theta *= Math.PI / 180;// % 360; 
+				//phi *= Math.PI / 180;// % 360;
 			}
 			
 			if (theta == 0) theta = 0.001;
 			if (phi == 0) phi = 0.001;
 			
+			//trace(theta, phi);
+			
 			camera.x = distance * Math.cos(theta) * Math.sin(phi); 
 			camera.z = distance * Math.sin(theta) * Math.sin(phi); 
 			camera.y = distance * Math.cos(phi); 
 			
+			//trace(camera.x, camera.y, camera.z);
 			
 			if (Math.sin(phi) < 0) upVector = new Number3D(0, -1, 0); 
 			else upVector = new Number3D(0, 1, 0);
 			camera.lookAt(sphere , upVector);
 			
+			clickPoint.x = stage.mouseX;
+			clickPoint.y = stage.mouseY;
 		}
 		
 		/**
@@ -429,8 +456,37 @@ package
 			stage.removeEventListener(Event.ENTER_FRAME, rotating);
 			stage.removeEventListener(MouseEvent.MOUSE_UP, stopRotating);
 			
-			upPoint.x = upPoint.x - (stage.mouseX - clickPoint.x);
-			upPoint.y = upPoint.y - (stage.mouseY - clickPoint.y);
+			//upPoint.x = upPoint.x - (stage.mouseX - clickPoint.x);
+			//upPoint.y = upPoint.y - (stage.mouseY - clickPoint.y);
+			continueRotating();
+		}
+		
+		private var fat:Number = 10;
+		private var tweenRotTheta:Tween;
+		private var tweenRotPhi:Tween;
+		private var tweenPropTheta:Sprite = new Sprite();
+		private var tweenPropPhi:Sprite = new Sprite();
+		private function continueRotating():void
+		{
+			if (lastDtheta != 0) {
+				tweenRotTheta = new Tween(tweenPropTheta, "x", Regular.easeOut, lastDtheta * fat, 0, 1, true);
+				tweenRotTheta.addEventListener(TweenEvent.MOTION_CHANGE, changeRotation);
+			}
+			if (lastDphi != 0) {
+				tweenRotPhi = new Tween(tweenPropPhi, "x", Regular.easeOut, lastDphi * fat, 0, 1, true);
+				tweenRotPhi.addEventListener(TweenEvent.MOTION_CHANGE, changeRotation);
+			}
+			
+		}
+		
+		private function changeRotation(e:TweenEvent):void 
+		{
+			if (e.target == tweenRotTheta) {
+				theta -= tweenPropTheta.x / fat;
+			}else {
+				phi -= tweenPropPhi.x / fat;
+			}
+			rotating(null);
 		}
 		
 		
