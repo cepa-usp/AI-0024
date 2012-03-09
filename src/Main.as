@@ -148,6 +148,8 @@ package
 			interactiveMouse();
 			rotating(null);
 			setChildIndex(bordaAtividade, numChildren - 1);
+			
+			iniciaTutorial();
 		}
 		
 		/**
@@ -206,7 +208,7 @@ package
 			var resetTT:ToolTip = new ToolTip(botoes.resetButton, "Reiniciar", 12, 0.8, 100, 0.6, 0.1);
 			var intTT:ToolTip = new ToolTip(botoes.tutorialBtn, "Reiniciar tutorial", 12, 0.8, 150, 0.6, 0.1);
 			
-			var finalizaTT:ToolTip = new ToolTip(btOk, "Finaliza atividade", 12, 0.8, 200, 0.6, 0.1);
+			var finalizaTT:ToolTip = new ToolTip(btOk, "Finalizar atividade", 12, 0.8, 200, 0.6, 0.1);
 			
 			addChild(infoTT);
 			addChild(instTT);
@@ -432,42 +434,35 @@ package
 		}
 		
 		
-		//---------------------------------- Tutorial --------------------------------------//
-		
+		//Tutorial
 		private var balao:CaixaTexto;
 		private var pointsTuto:Array;
 		private var tutoBaloonPos:Array;
 		private var tutoPos:int;
-		private var tutoSequence:Array = ["Estas placas de Petri contém três espécies distintas de bactérias.", 
-										  "Classifique as bactérias arrastando os rótulos para as placas de Petri.",
-										  "O tubo de ensaio contém um líquido propício à proliferação das três bactérias.",
-										  "Esta escala indica a distribuição de oxigênio no tubo de ensaio: quanto mais verde, mais oxigênio há naquela altura do tubo.",
-										  "Você pode arrastar uma ou mais bactérias para dentro do tubo de ensaio.",
-										  "Pressione este botão para trocar o tubo de ensaio e começar uma nova experiência."];
-		
+		private var tutoPhaseFinal:Boolean;
+		private var tutoSequence:Array = [" Clique e arraste o mouse para alterar a visualização.",
+										  "Clique no globo para marcar uma posição.",
+										  "Pressione \"terminei\" quando tiver concluído."];
+										  
 		private function iniciaTutorial(e:MouseEvent = null):void 
 		{
 			tutoPos = 0;
+			tutoPhaseFinal = false;
 			if(balao == null){
 				balao = new CaixaTexto(true);
 				addChild(balao);
 				balao.visible = false;
 				
-				pointsTuto = 	[new Point(),
-								new Point(),
-								new Point(),
-								new Point(),
-								new Point(),
-								new Point()];
+				pointsTuto = 	[new Point(300, 250),
+								new Point(400, 250),
+								new Point(btOk.x, btOk.y - btOk.height / 2)];
 								
-				tutoBaloonPos = [[CaixaTexto.BOTTON, CaixaTexto.CENTER],
-								[CaixaTexto.TOP, CaixaTexto.CENTER],
+				tutoBaloonPos = [[CaixaTexto.RIGHT, CaixaTexto.FIRST],
 								[CaixaTexto.LEFT, CaixaTexto.FIRST],
-								[CaixaTexto.LEFT, CaixaTexto.CENTER],
-								[CaixaTexto.BOTTON, CaixaTexto.CENTER],
-								[CaixaTexto.LEFT, CaixaTexto.LAST]];
+								[CaixaTexto.BOTTON, CaixaTexto.CENTER]];
 			}
 			balao.removeEventListener(Event.CLOSE, closeBalao);
+			feedbackScreen.removeEventListener(Event.CLOSE, iniciaTutorialSegundaFase);
 			
 			balao.setText(tutoSequence[tutoPos], tutoBaloonPos[tutoPos][0], tutoBaloonPos[tutoPos][1]);
 			balao.setPosition(pointsTuto[tutoPos].x, pointsTuto[tutoPos].y);
@@ -477,14 +472,30 @@ package
 		
 		private function closeBalao(e:Event):void 
 		{
-			tutoPos++;
-			if (tutoPos >= tutoSequence.length) {
+			if (tutoPhaseFinal) {
 				balao.removeEventListener(Event.CLOSE, closeBalao);
 				balao.visible = false;
-				//tutoPhase = false;
-			}else {
-				balao.setText(tutoSequence[tutoPos], tutoBaloonPos[tutoPos][0], tutoBaloonPos[tutoPos][1]);
-				balao.setPosition(pointsTuto[tutoPos].x, pointsTuto[tutoPos].y);
+				feedbackScreen.removeEventListener(Event.CLOSE, iniciaTutorialSegundaFase);
+			}else{
+				tutoPos++;
+				if (tutoPos >= tutoSequence.length) {
+					balao.removeEventListener(Event.CLOSE, closeBalao);
+					balao.visible = false;
+					feedbackScreen.addEventListener(Event.CLOSE, iniciaTutorialSegundaFase);
+					tutoPhaseFinal = true;
+				}else {
+					balao.setText(tutoSequence[tutoPos], tutoBaloonPos[tutoPos][0], tutoBaloonPos[tutoPos][1]);
+					balao.setPosition(pointsTuto[tutoPos].x, pointsTuto[tutoPos].y);
+				}
+			}
+		}
+		
+		private function iniciaTutorialSegundaFase(e:Event):void 
+		{
+			if(tutoPhaseFinal){
+				balao.setText("Você pode tentar quantas vezes quiser. Basta marcar uma nova posição.", tutoBaloonPos[1][0], tutoBaloonPos[1][1]);
+				balao.setPosition(pointsTuto[1].x, pointsTuto[1].y);
+				tutoPhaseFinal = false;
 			}
 		}
 	}
