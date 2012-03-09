@@ -17,6 +17,7 @@ package
 	import flash.geom.Rectangle;
 	import flash.geom.Vector3D;
 	import flash.text.TextField;
+	import flash.utils.setTimeout;
 	import flash.utils.Timer;
 	import org.papervision3d.core.math.Number3D;
 	import org.papervision3d.core.utils.Mouse3D;
@@ -113,6 +114,8 @@ package
 		private var orientacoesScreen:InstScreen;
 		private var creditosScreen:AboutScreen;
 		private var feedbackScreen:FeedBackScreen;
+		
+		
 		
 		public function Main() 
 		{
@@ -323,6 +326,8 @@ package
 		 */
 		private function sphereClickHandler(e:InteractiveScene3DEvent):void 
 		{
+			if (distClick > 2) return;
+			
 			if (alfineteClick != null) 
 			{
 				scene.removeChild(alfineteClick);
@@ -385,14 +390,17 @@ package
 			
 		}
 		
+		private var distClick:Number = 0;
+		private var clickPt:Point = new Point();
+		
 		/**
 		 * @private
 		 * Inicia o processo de rotação da câmera.
 		 */
 		private function initRotation(e:MouseEvent):void 
 		{
-			if (e.target is Stage)
-			{
+			//if (e.target is Stage)
+			//{
 				if (tweenRotTheta != null) {
 					if (tweenRotTheta.isPlaying) tweenRotTheta.stop();
 				}
@@ -404,7 +412,9 @@ package
 				stage.addEventListener(MouseEvent.MOUSE_UP, stopRotating);
 				clickPoint.x = stage.mouseX;
 				clickPoint.y = stage.mouseY;
-			}
+				clickPt.x = stage.mouseX;
+				clickPt.y = stage.mouseY;
+			//}
 		}
 		
 		private var lastDtheta:Number;
@@ -416,12 +426,18 @@ package
 		 */
 		private function rotating(e:Event):void 
 		{
+			distClick = Point.distance(clickPt, new Point(stage.mouseX, stage.mouseY));
+			
 			if(e != null){
 				//theta = ((upPoint.x - (stage.mouseX - clickPoint.x)) / stage.stageWidth * 100) * Math.PI / 180;// % 360; 
 				//phi = ((upPoint.y - (stage.mouseY - clickPoint.y)) / stage.stageHeight * 100 ) * Math.PI / 180;// % 360;
 				lastDtheta = ((stage.mouseX - clickPoint.x) / 10) * Math.PI / 180;
 				lastDphi = ((stage.mouseY - clickPoint.y) / 10) * Math.PI / 180;
-				theta -= lastDtheta;
+				if (upVector.y < 0) {
+					theta += lastDtheta;
+				}else{
+					theta -= lastDtheta;
+				}
 				phi -= lastDphi;
 			}else {
 				//theta *= Math.PI / 180;// % 360; 
@@ -453,6 +469,7 @@ package
 		 */
 		private function stopRotating(e:MouseEvent):void 
 		{
+			setTimeout(zeraDist, 100);
 			stage.removeEventListener(Event.ENTER_FRAME, rotating);
 			stage.removeEventListener(MouseEvent.MOUSE_UP, stopRotating);
 			
@@ -461,14 +478,25 @@ package
 			continueRotating();
 		}
 		
+		private function zeraDist():void
+		{
+			distClick = 0;
+		}
+		
 		private var fat:Number = 10;
 		private var tweenRotTheta:Tween;
 		private var tweenRotPhi:Tween;
 		private var tweenPropTheta:Sprite = new Sprite();
 		private var tweenPropPhi:Sprite = new Sprite();
+		private var invertTheta:Boolean = false;
 		private function continueRotating():void
 		{
 			if (lastDtheta != 0) {
+				if (upVector.y < 0) {
+					invertTheta = true;
+				}else{
+					invertTheta = false;
+				}
 				tweenRotTheta = new Tween(tweenPropTheta, "x", Regular.easeOut, lastDtheta * fat, 0, 1, true);
 				tweenRotTheta.addEventListener(TweenEvent.MOTION_CHANGE, changeRotation);
 			}
@@ -482,7 +510,11 @@ package
 		private function changeRotation(e:TweenEvent):void 
 		{
 			if (e.target == tweenRotTheta) {
-				theta -= tweenPropTheta.x / fat;
+				if (invertTheta) {
+					theta += tweenPropTheta.x / fat;
+				}else{
+					theta -= tweenPropTheta.x / fat;
+				}
 			}else {
 				phi -= tweenPropPhi.x / fat;
 			}
