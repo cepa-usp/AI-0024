@@ -5,7 +5,10 @@ package
 	import fl.transitions.easing.Regular;
 	import fl.transitions.Tween;
 	import fl.transitions.TweenEvent;
+	import flash.display.Bitmap;
 	import flash.display.BitmapData;
+	import flash.display.Loader;
+	import flash.display.LoaderInfo;
 	import flash.display.Sprite;
 	import flash.display.Stage;
 	import flash.display.StageScaleMode;
@@ -16,6 +19,8 @@ package
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.geom.Vector3D;
+	import flash.net.URLLoader;
+	import flash.net.URLRequest;
 	import flash.text.TextField;
 	import flash.utils.setTimeout;
 	import flash.utils.Timer;
@@ -105,8 +110,8 @@ package
 			0.0000, 0.0000, 0.0000, 1, 0
 		]);
 		
-		private var latitudeTitanic:Number = 42;
-		private var longitudeTitanic:Number = -48;
+		private var latitudeSorted:Number;
+		private var longitudeSorted:Number;
 		
 		private var latitudeClick:Number;
 		private var longitudeClick:Number;
@@ -115,7 +120,13 @@ package
 		private var creditosScreen:AboutScreen;
 		private var feedbackScreen:FeedBackScreen;
 		
+		private var xmlConfig:XML;
+		private var configLoaded:Boolean = false;
 		
+		private var bmpFundo:BitmapData;
+		private var imgFundo:Bitmap;
+		
+		private var configuracoes:Array = [];
 		
 		public function Main() 
 		{
@@ -135,6 +146,8 @@ package
 			
 			this.scrollRect = new Rectangle(0, 0, 700, 500);
 			
+			
+			
 			creditosScreen = new AboutScreen();
 			addChild(creditosScreen);
 			orientacoesScreen = new InstScreen();
@@ -147,6 +160,8 @@ package
 			createSphere();
 			adicionaListeners();
 			
+			loadConfig();
+			
 			//stage.displayState = StageDisplayState.FULL_SCREEN;
 			stage.scaleMode = StageScaleMode.SHOW_ALL;
 			
@@ -158,6 +173,69 @@ package
 			iniciaTutorial();
 		}
 		
+		private function loadConfig():void 
+		{
+			var urlReq:URLRequest = new URLRequest("config.xml");
+			var urlLoader:URLLoader = new URLLoader();
+			urlLoader.addEventListener(Event.COMPLETE, readXML);
+			urlLoader.load(urlReq);
+		}
+		
+		private function readXML(e:Event):void 
+		{
+			xmlConfig = new XML(e.target.data);
+			
+			/*for each (var item:Object in xmlConfig.locais) 
+			{
+				configuracoes.push(item);
+			}*/
+			
+			var i:int = 0;
+			while (xmlConfig.locais.local[i] != null)
+			{
+				var obj:Object = {
+					nome: xmlConfig.locais.local[i].name,
+					latitude: xmlConfig.locais.local[i].latitude,
+					longitude: xmlConfig.locais.local[i].longitude,
+					mensagem: xmlConfig.locais.local[i].mensagem,
+					imagem: xmlConfig.locais.local[i].imagem
+				}
+				configuracoes.push(obj);
+				i++;
+			}
+			
+			sortConfig();
+			
+			configLoaded = true;
+		}
+		
+		private var sortedExercise:int = 0;
+		private function sortConfig():void 
+		{
+			var rand:int = Math.floor(Math.random() * configuracoes.length);
+			while (rand == sortedExercise) {
+				rand = Math.floor(Math.random() * configuracoes.length);
+			}
+			
+			sortedExercise = rand;
+			//var rand:int = 0;
+			
+			latitudeSorted = Number(configuracoes[rand].latitude);
+			longitudeSorted = Number(configuracoes[rand].longitude);
+			barraInstrucao.text = String(configuracoes[rand].mensagem);
+			
+			var urlRequest:URLRequest = new URLRequest(String(configuracoes[rand].imagem));
+			var urlLoader:Loader = new Loader();
+			urlLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, loadImage, false, 0, true);
+			urlLoader.load(urlRequest);
+		}
+		
+		private function loadImage(e:Event):void 
+		{
+			var obj:Bitmap = Bitmap(LoaderInfo(e.target).content);
+			imgFundo.bitmapData = obj.bitmapData;
+		}
+		
 		/**
 		 * @private
 		 * Inicializa os parâmetros necessários a atividade.
@@ -167,7 +245,11 @@ package
 			btOk.filters = [GRAYSCALE_FILTER];
 			btOk.mouseEnabled = false;
 			btOk.alpha = 0.5;
-			//btCancel.visible = false;
+			
+			imgFundo = new Bitmap();
+			options.addChild(imgFundo);
+			imgFundo.x = 5;
+			imgFundo.y = 5;
 			
 			//latText.visible = false;
 			//longText.visible = false;
@@ -225,9 +307,11 @@ package
 		
 		private function verificaCoordenadas(e:MouseEvent):void 
 		{
-			if (Math.abs(latitudeTitanic - latitudeClick) <= 2 && Math.abs(longitudeTitanic - longitudeClick) <= 2)
+			trace("ans: " + latitudeSorted + ", " + longitudeSorted);
+			trace("click: " + latitudeClick + ", " + longitudeClick);
+			if (Math.abs(latitudeSorted - latitudeClick) <= 2 && Math.abs(longitudeSorted - longitudeClick) <= 2)
 			{
-				feedbackScreen.setText("Parabéns!\nVocê encontrou o Titanic.");
+				feedbackScreen.setText("Parabéns!\nVocê encontrou o " + String(configuracoes[sortedExercise].nome) + "!");
 			}
 			else
 			{
@@ -251,6 +335,8 @@ package
 			theta = -3.137547476611862;
 			phi = 1.5743194505715339;
 			rotating(null);
+			
+			sortConfig();
 		}
 		
 		/**
@@ -326,7 +412,7 @@ package
 		 */
 		private function sphereClickHandler(e:InteractiveScene3DEvent):void 
 		{
-			if (distClick > 2) return;
+			if (distClick > 2 || !configLoaded) return;
 			
 			if (alfineteClick != null) 
 			{
@@ -543,11 +629,11 @@ package
 				
 				pointsTuto = 	[new Point(300, 250),
 								new Point(400, 250),
-								new Point(btOk.x, btOk.y - btOk.height / 2)];
+								new Point(btOk.x + btOk.width/ 2, btOk.y)];
 								
 				tutoBaloonPos = [[CaixaTexto.RIGHT, CaixaTexto.FIRST],
 								[CaixaTexto.LEFT, CaixaTexto.FIRST],
-								[CaixaTexto.BOTTON, CaixaTexto.CENTER]];
+								[CaixaTexto.LEFT, CaixaTexto.FIRST]];
 			}
 			balao.removeEventListener(Event.CLOSE, closeBalao);
 			feedbackScreen.removeEventListener(Event.CLOSE, iniciaTutorialSegundaFase);
