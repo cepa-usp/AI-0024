@@ -1,4 +1,4 @@
-package  
+﻿package  
 {
 	import cepa.utils.ToolTip;
 	import fl.transitions.easing.None;
@@ -131,7 +131,7 @@ package
 		private var imgFundo:Bitmap;
 		
 		private var configuracoes:Array = [];
-		private var txtFormat:TextFormat = new TextFormat("arial", 15, 0xFFCC00, true);
+		private var txtFormat:TextFormat = new TextFormat("arial", 15, 0xFFFFFF, true);
 		
 		public function Main() 
 		{
