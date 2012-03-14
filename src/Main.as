@@ -1,22 +1,30 @@
-package  
+﻿package  
 {
 	import cepa.utils.ToolTip;
 	import fl.transitions.easing.None;
 	import fl.transitions.easing.Regular;
 	import fl.transitions.Tween;
 	import fl.transitions.TweenEvent;
+	import flash.display.Bitmap;
 	import flash.display.BitmapData;
+	import flash.display.Loader;
+	import flash.display.LoaderInfo;
+	import flash.display.MovieClip;
 	import flash.display.Sprite;
 	import flash.display.Stage;
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
+	import flash.external.ExternalInterface;
 	import flash.filters.ColorMatrixFilter;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import flash.geom.Vector3D;
+	import flash.net.URLLoader;
+	import flash.net.URLRequest;
 	import flash.text.TextField;
+	import flash.text.TextFormat;
 	import flash.utils.setTimeout;
 	import flash.utils.Timer;
 	import org.papervision3d.core.math.Number3D;
@@ -33,6 +41,7 @@ package
 	import org.papervision3d.objects.primitives.Sphere;
 	import org.papervision3d.view.BasicView;
 	import org.papervision3d.view.layer.ViewportLayer;
+	import pipwerks.SCORM;
 	
 	/**
 	 * ...
@@ -105,8 +114,8 @@ package
 			0.0000, 0.0000, 0.0000, 1, 0
 		]);
 		
-		private var latitudeTitanic:Number = 42;
-		private var longitudeTitanic:Number = -48;
+		private var latitudeSorted:Number;
+		private var longitudeSorted:Number;
 		
 		private var latitudeClick:Number;
 		private var longitudeClick:Number;
@@ -115,7 +124,14 @@ package
 		private var creditosScreen:AboutScreen;
 		private var feedbackScreen:FeedBackScreen;
 		
+		private var xmlConfig:XML;
+		private var configLoaded:Boolean = false;
 		
+		private var bmpFundo:BitmapData;
+		private var imgFundo:Bitmap;
+		
+		private var configuracoes:Array = [];
+		private var txtFormat:TextFormat = new TextFormat("arial", 15, 0xFFFFFF, true);
 		
 		public function Main() 
 		{
@@ -135,6 +151,8 @@ package
 			
 			this.scrollRect = new Rectangle(0, 0, 700, 500);
 			
+			
+			
 			creditosScreen = new AboutScreen();
 			addChild(creditosScreen);
 			orientacoesScreen = new InstScreen();
@@ -147,6 +165,8 @@ package
 			createSphere();
 			adicionaListeners();
 			
+			loadConfig();
+			
 			//stage.displayState = StageDisplayState.FULL_SCREEN;
 			stage.scaleMode = StageScaleMode.SHOW_ALL;
 			
@@ -156,6 +176,84 @@ package
 			setChildIndex(bordaAtividade, numChildren - 1);
 			
 			iniciaTutorial();
+			
+			if (ExternalInterface.available) initLMSConnection();
+		}
+		
+		private function loadConfig():void 
+		{
+			var urlReq:URLRequest = new URLRequest("config.xml");
+			var urlLoader:URLLoader = new URLLoader();
+			urlLoader.addEventListener(Event.COMPLETE, readXML);
+			urlLoader.load(urlReq);
+		}
+		
+		private function readXML(e:Event):void 
+		{
+			xmlConfig = new XML(e.target.data);
+			
+			/*for each (var item:Object in xmlConfig.locais) 
+			{
+				configuracoes.push(item);
+			}*/
+			
+			var i:int = 0;
+			while (xmlConfig.locais.local[i] != null)
+			{
+				var obj:Object = {
+					nome: xmlConfig.locais.local[i].name,
+					latitude: xmlConfig.locais.local[i].latitude,
+					longitude: xmlConfig.locais.local[i].longitude,
+					mensagem: xmlConfig.locais.local[i].mensagem,
+					imagem: xmlConfig.locais.local[i].imagem
+				}
+				configuracoes.push(obj);
+				i++;
+			}
+			
+			sortConfig();
+			
+			configLoaded = true;
+		}
+		
+		private var sortedExercise:int = 0;
+		private function sortConfig():void 
+		{
+			var rand:int = Math.floor(Math.random() * configuracoes.length);
+			while (rand == sortedExercise) {
+				rand = Math.floor(Math.random() * configuracoes.length);
+			}
+			
+			sortedExercise = rand;
+			//var rand:int = 0;
+			
+			latitudeSorted = Number(configuracoes[rand].latitude);
+			longitudeSorted = Number(configuracoes[rand].longitude);
+			TextField(barraInstrucao).defaultTextFormat = txtFormat;
+			barraInstrucao.text = String(configuracoes[rand].mensagem);
+			
+			var urlRequest:URLRequest = new URLRequest(String(configuracoes[rand].imagem));
+			var urlLoader:Loader = new Loader();
+			urlLoader.contentLoaderInfo.addEventListener(Event.COMPLETE, loadImage, false, 0, true);
+			urlLoader.load(urlRequest);
+		}
+		
+		private function loadImage(e:Event):void 
+		{
+			var obj:Bitmap = Bitmap(LoaderInfo(e.target).content);
+			
+			if(imgFundo != null) options.removeChild(imgFundo);
+			
+			imgFundo = new Bitmap(obj.bitmapData);
+			options.addChild(imgFundo);
+			imgFundo.x = options.boxMask.x - options.boxMask.width / 2;
+			imgFundo.y = options.boxMask.y - options.boxMask.height / 2;
+			imgFundo.mask = options.boxMask;
+			
+			//imgFundo.bitmapData.draw(obj);
+			//if(imgFundo.bitmapData != null) imgFundo.bitmapData.draw(MovieClip(options.boxMask),);
+			//imgFundo.bitmapData = obj.bitmapData;
+			//imgFundo = new Bitmap(obj.bitmapData);
 		}
 		
 		/**
@@ -167,7 +265,12 @@ package
 			btOk.filters = [GRAYSCALE_FILTER];
 			btOk.mouseEnabled = false;
 			btOk.alpha = 0.5;
-			//btCancel.visible = false;
+			
+			/*imgFundo = new Bitmap();
+			options.addChild(imgFundo);
+			imgFundo.x = options.boxMask.x - options.boxMask.width / 2;
+			imgFundo.y = options.boxMask.y - options.boxMask.height / 2;
+			imgFundo.mask = options.boxMask;*/
 			
 			//latText.visible = false;
 			//longText.visible = false;
@@ -225,14 +328,24 @@ package
 		
 		private function verificaCoordenadas(e:MouseEvent):void 
 		{
-			if (Math.abs(latitudeTitanic - latitudeClick) <= 2 && Math.abs(longitudeTitanic - longitudeClick) <= 2)
+			nTentativas++;
+			var currentScore:Number;
+			//trace("ans: " + latitudeSorted + ", " + longitudeSorted);
+			//trace("click: " + latitudeClick + ", " + longitudeClick);
+			if (Math.abs(latitudeSorted - latitudeClick) <= 2 && Math.abs(longitudeSorted - longitudeClick) <= 2)
 			{
-				feedbackScreen.setText("Parabéns!\nVocê encontrou o Titanic.");
+				feedbackScreen.setText("Parabéns!\nVocê encontrou " + String(configuracoes[sortedExercise].nome) + "!");
+				currentScore = 100;
 			}
 			else
 			{
 				feedbackScreen.setText("Procure novamente...");
+				currentScore = 0;
 			}
+			score = (score + currentScore) / nTentativas;
+			
+			if (score >= 50) completed = true;
+			commit();
 		}
 		
 		private function reset(e:MouseEvent):void 
@@ -251,6 +364,8 @@ package
 			theta = -3.137547476611862;
 			phi = 1.5743194505715339;
 			rotating(null);
+			
+			sortConfig();
 		}
 		
 		/**
@@ -326,7 +441,7 @@ package
 		 */
 		private function sphereClickHandler(e:InteractiveScene3DEvent):void 
 		{
-			if (distClick > 2) return;
+			if (distClick > 2 || !configLoaded) return;
 			
 			if (alfineteClick != null) 
 			{
@@ -543,11 +658,11 @@ package
 				
 				pointsTuto = 	[new Point(300, 250),
 								new Point(400, 250),
-								new Point(btOk.x, btOk.y - btOk.height / 2)];
+								new Point(btOk.x + btOk.width/ 2, btOk.y)];
 								
 				tutoBaloonPos = [[CaixaTexto.RIGHT, CaixaTexto.FIRST],
 								[CaixaTexto.LEFT, CaixaTexto.FIRST],
-								[CaixaTexto.BOTTON, CaixaTexto.CENTER]];
+								[CaixaTexto.LEFT, CaixaTexto.FIRST]];
 			}
 			balao.removeEventListener(Event.CLOSE, closeBalao);
 			feedbackScreen.removeEventListener(Event.CLOSE, iniciaTutorialSegundaFase);
@@ -585,6 +700,131 @@ package
 				balao.setPosition(pointsTuto[1].x, pointsTuto[1].y);
 				tutoPhaseFinal = false;
 			}
+		}
+		
+		
+		/*------------------------------------------------------------------------------------------------*/
+		//SCORM:
+		
+		private const PING_INTERVAL:Number = 5 * 60 * 1000; // 5 minutos
+		private var completed:Boolean;
+		private var scorm:SCORM;
+		private var scormExercise:int;
+		private var connected:Boolean;
+		private var score:int;
+		private var pingTimer:Timer;
+		private var nTentativas:int = 0;
+		
+		/**
+		 * @private
+		 * Inicia a conexão com o LMS.
+		 */
+		private function initLMSConnection () : void
+		{
+			completed = false;
+			connected = false;
+			scorm = new SCORM();
+			
+			pingTimer = new Timer(PING_INTERVAL);
+			pingTimer.addEventListener(TimerEvent.TIMER, pingLMS);
+			
+			connected = scorm.connect();
+			
+			if (connected) {
+				// Verifica se a AI já foi concluída.
+				var status:String = scorm.get("cmi.completion_status");	
+				var stringScore:String = scorm.get("cmi.score.raw");
+				var stringTentativas:String = scorm.get("cmi.suspend_data");
+			 
+				switch(status)
+				{
+					// Primeiro acesso à AI
+					case "not attempted":
+					case "unknown":
+					default:
+						completed = false;
+						break;
+					
+					// Continuando a AI...
+					case "incomplete":
+						completed = false;
+						break;
+					
+					// A AI já foi completada.
+					case "completed":
+						completed = true;
+						break;
+				}
+				
+				//unmarshalObjects(mementoSerialized);
+				scormExercise = 1;
+				if (stringScore != "") score = Number(stringScore.replace(",", "."));
+				else score = 0;
+				nTentativas = int(stringTentativas);
+				
+				var success:Boolean = scorm.set("cmi.score.min", "0");
+				if (success) success = scorm.set("cmi.score.max", "100");
+				
+				if (success)
+				{
+					scorm.save();
+					pingTimer.start();
+				}
+				else
+				{
+					//trace("Falha ao enviar dados para o LMS.");
+					connected = false;
+				}
+			}
+			else
+			{
+				trace("Esta Atividade Interativa não está conectada a um LMS: seu aproveitamento nela NÃO será salvo.");
+			}
+			
+			//reset();
+		}
+		
+		/**
+		 * @private
+		 * Salva cmi.score.raw, cmi.location e cmi.completion_status no LMS
+		 */ 
+		private function commit()
+		{
+			if (connected)
+			{
+				// Salva no LMS a nota do aluno.
+				var success:Boolean = scorm.set("cmi.score.raw", score.toString());
+
+				// Notifica o LMS que esta atividade foi concluída.
+				success = scorm.set("cmi.completion_status", (completed ? "completed" : "incomplete"));
+
+				// Salva no LMS o exercício que deve ser exibido quando a AI for acessada novamente.
+				success = scorm.set("cmi.location", scormExercise.toString());
+				
+				// Salva no LMS a string que representa a situação atual da AI para ser recuperada posteriormente.
+				success = scorm.set("cmi.suspend_data", String(nTentativas));
+
+				if (success)
+				{
+					scorm.save();
+				}
+				else
+				{
+					pingTimer.stop();
+					//setMessage("Falha na conexão com o LMS.");
+					connected = false;
+				}
+			}
+		}
+		
+		/**
+		 * @private
+		 * Mantém a conexão com LMS ativa, atualizando a variável cmi.session_time
+		 */
+		private function pingLMS (event:TimerEvent)
+		{
+			//scorm.get("cmi.completion_status");
+			commit();
 		}
 	}
 

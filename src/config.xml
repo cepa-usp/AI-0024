@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<data>
+	<locais>
+		<local>
+			<name>Teste1</name>
+			<latitude>41</latitude>
+			<longitude>-49</longitude>
+			<imagem>imagens/Capacete.jpg</imagem>
+			<mensagem>Procure o Capacete!</mensagem>
+		</local>
+		
+		<local>
+			<name>Teste2</name>
+			<latitude>-20</latitude>
+			<longitude>120</longitude>
+			<imagem>imagens/Moto.gif</imagem>
+			<mensagem>Procure a moto.</mensagem>
+		</local>
+		
+		<local>
+			<name>Teste3</name>
+			<latitude>-60</latitude>
+			<longitude>160</longitude>
+			<imagem>imagens/Placa.gif</imagem>
+			<mensagem>Procure a placa!</mensagem>
+		</local>
+		
+		<local>
+			<name>Teste4</name>
+			<latitude>40</latitude>
+			<longitude>-30</longitude>
+			<imagem>imagens/Popai.jpeg</imagem>
+			<mensagem>Olha o popai....</mensagem>
+		</local>
+		
+		<local>
+			<name>Teste5</name>
+			<latitude>10</latitude>
+			<longitude>80</longitude>
+			<imagem>imagens/Xtreem.jpg</imagem>
+			<mensagem>Procure o X.... qq coisa!</mensagem>
+		</local>
+	</locais>
+</data>
