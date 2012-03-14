@@ -19,8 +19,8 @@
 		
 		<local>
 			<name>Teste3</name>
-			<latitude>-100</latitude>
-			<longitude>80</longitude>
+			<latitude>-60</latitude>
+			<longitude>160</longitude>
 			<imagem>imagens/Placa.gif</imagem>
 			<mensagem>Procure a placa!</mensagem>
 		</local>
@@ -35,8 +35,8 @@
 		
 		<local>
 			<name>Teste5</name>
-			<latitude>40</latitude>
-			<longitude>40</longitude>
+			<latitude>10</latitude>
+			<longitude>80</longitude>
 			<imagem>imagens/Xtreem.jpg</imagem>
 			<mensagem>Procure o X.... qq coisa!</mensagem>
 		</local>

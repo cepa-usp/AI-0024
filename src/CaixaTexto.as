@@ -88,7 +88,7 @@ package
 				if (textArray.length >= 1) {
 					setText(textArray, sideForArrow, alignForArrow, currentWidth);
 				}
-			}else if (e.target != background && !(e.target is SimpleButton)) {
+			}else /*if (e.target != background && !(e.target is SimpleButton)) */{
 				if (this.visible) {
 					this.visible = false;
 					//trace("evento disparado");
