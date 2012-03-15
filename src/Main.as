@@ -806,6 +806,8 @@ package
 		{
 			if (connected)
 			{
+				scorm.set("cmi.exit", "suspend");
+				
 				// Salva no LMS a nota do aluno.
 				var success:Boolean = scorm.set("cmi.score.raw", score.toString());
 
