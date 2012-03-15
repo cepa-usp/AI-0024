@@ -1,4 +1,4 @@
-﻿package  
+package  
 {
 	import cepa.utils.ToolTip;
 	import fl.transitions.easing.None;
@@ -132,6 +132,8 @@
 		
 		private var configuracoes:Array = [];
 		private var txtFormat:TextFormat = new TextFormat("arial", 15, 0xFFFFFF, true);
+		
+		private var respondido:Boolean = false;
 		
 		public function Main() 
 		{
@@ -285,6 +287,7 @@
 		{
 			btOk.addEventListener(MouseEvent.CLICK, verificaCoordenadas);
 			//btCancel.addEventListener(MouseEvent.CLICK, calcelHandler);
+			btNew.addEventListener(MouseEvent.CLICK, reset);
 			
 			botoes.tutorialBtn.addEventListener(MouseEvent.CLICK, iniciaTutorial);
 			botoes.orientacoesBtn.addEventListener(MouseEvent.CLICK, openOrientacoes);
@@ -318,17 +321,20 @@
 			var intTT:ToolTip = new ToolTip(botoes.tutorialBtn, "Reiniciar tutorial", 12, 0.8, 150, 0.6, 0.1);
 			
 			var finalizaTT:ToolTip = new ToolTip(btOk, "Finalizar atividade", 12, 0.8, 200, 0.6, 0.1);
+			var novoTT:ToolTip = new ToolTip(btNew, "Sortear localização", 12, 0.8, 250, 0.6, 0.1);
 			
 			addChild(infoTT);
 			addChild(instTT);
 			addChild(resetTT);
 			addChild(intTT);
 			addChild(finalizaTT);
+			addChild(novoTT);
 		}
 		
 		private function verificaCoordenadas(e:MouseEvent):void 
 		{
-			nTentativas++;
+			if (!respondido) nTentativas++;
+			
 			var currentScore:Number;
 			//trace("ans: " + latitudeSorted + ", " + longitudeSorted);
 			//trace("click: " + latitudeClick + ", " + longitudeClick);
@@ -342,10 +348,15 @@
 				feedbackScreen.setText("Procure novamente...");
 				currentScore = 0;
 			}
-			score = (score + currentScore) / nTentativas;
 			
-			if (score >= 50) completed = true;
-			commit();
+			if (!respondido){
+				score = (score + currentScore) / nTentativas;
+				
+				if (score >= 50) completed = true;
+				commit();
+			}
+			
+			respondido = true;
 		}
 		
 		private function reset(e:MouseEvent):void 
@@ -361,11 +372,14 @@
 			//upPoint.x = -1260;
 			//upPoint.y = 450;
 			
-			theta = -3.137547476611862;
-			phi = 1.5743194505715339;
-			rotating(null);
+			if(e.target == btOk){
+				theta = -3.137547476611862;
+				phi = 1.5743194505715339;
+				rotating(null);
+			}
 			
 			sortConfig();
+			respondido = false;
 		}
 		
 		/**
