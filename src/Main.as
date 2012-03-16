@@ -348,7 +348,7 @@ package
 			}
 			
 			if (!respondido){
-				score = (score + currentScore) / nTentativas;
+				score = (score * (nTentativas - 1) + currentScore) / nTentativas;
 				
 				if (score >= 50) completed = true;
 				commit();
