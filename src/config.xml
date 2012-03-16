@@ -80,5 +80,13 @@
 			<imagem>assets/images/tang.png</imagem>
 			<mensagem>Localize Tangamandápio. Coordenadas: 19ºN 102ºW</mensagem>
 		</local>
+		
+		<local>
+			<name>o Titanic</name>
+			<latitude>41</latitude>
+			<longitude>-49</longitude>
+			<imagem>assets/images/titanic.png</imagem>
+			<mensagem>Localize Tangamandápio. Coordenadas: 41ºN 49ºW</mensagem>
+		</local>
 	</locais>
 </data>
