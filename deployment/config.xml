@@ -1,44 +1,84 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <data>
 	<locais>
 		<local>
-			<name>Teste1</name>
+			<name>as pirâmides do Egito</name>
+			<latitude>30</latitude>
+			<longitude>31</longitude>
+			<imagem>assets/images/piramide.png</imagem>
+			<mensagem>Localize as pirâmides do Egito. Coordenadas: 30ºN 31ºE</mensagem>
+		</local>
+		
+		<local>
+			<name>a torre Eiffel</name>
+			<latitude>48</latitude>
+			<longitude>2</longitude>
+			<imagem>assets/images/torre.png</imagem>
+			<mensagem>Localize a torre Eiffel. Coordenadas: 48ºN 2ºE</mensagem>
+		</local>
+		
+		<local>
+			<name>a estátua da Liberdade</name>
 			<latitude>41</latitude>
-			<longitude>-49</longitude>
-			<imagem>assets/images/Capacete.jpg</imagem>
-			<mensagem>Procure o Capacete!</mensagem>
+			<longitude>-74</longitude>
+			<imagem>assets/images/liberdade.png</imagem>
+			<mensagem>Localize a estátua da Liberdade. Coordenadas: 41ºN 74ºW</mensagem>
 		</local>
 		
 		<local>
-			<name>Teste2</name>
-			<latitude>-20</latitude>
-			<longitude>120</longitude>
-			<imagem>assets/images/Moto.gif</imagem>
-			<mensagem>Procure a moto.</mensagem>
+			<name>o Taj Mahal</name>
+			<latitude>27</latitude>
+			<longitude>78</longitude>
+			<imagem>assets/images/taj.png</imagem>
+			<mensagem>Localize o Taj Mahal. Coordenadas: 27ºN 78ºE</mensagem>
 		</local>
 		
 		<local>
-			<name>Teste3</name>
-			<latitude>-60</latitude>
-			<longitude>160</longitude>
-			<imagem>assets/images/Placa.gif</imagem>
-			<mensagem>Procure a placa!</mensagem>
+			<name>o monte Everest</name>
+			<latitude>28</latitude>
+			<longitude>87</longitude>
+			<imagem>assets/images/monte.png</imagem>
+			<mensagem>Localize o monte Everest. Coordenadas: 28ºN 87ºE</mensagem>
 		</local>
 		
 		<local>
-			<name>Teste4</name>
-			<latitude>40</latitude>
-			<longitude>-30</longitude>
-			<imagem>assets/images/Popai.jpeg</imagem>
-			<mensagem>Olha o popai....</mensagem>
+			<name>o Cristo Redentor</name>
+			<latitude>-23</latitude>
+			<longitude>-43</longitude>
+			<imagem>assets/images/cristo.png</imagem>
+			<mensagem>Localize o Cristo Redentor. Coordenadas: 23ºS 43ºW</mensagem>
 		</local>
 		
 		<local>
-			<name>Teste5</name>
-			<latitude>10</latitude>
-			<longitude>80</longitude>
-			<imagem>assets/images/Xtreem.jpg</imagem>
-			<mensagem>Procure o X.... qq coisa!</mensagem>
+			<name>o Uluru</name>
+			<latitude>-25</latitude>
+			<longitude>131</longitude>
+			<imagem>assets/images/uluru.png</imagem>
+			<mensagem>Localize o Uluru. Coordenadas: 25ºS 131ºE</mensagem>
+		</local>
+		
+		<local>
+			<name>o Kilimanjaro</name>
+			<latitude>-4</latitude>
+			<longitude>37</longitude>
+			<imagem>assets/images/kili.png</imagem>
+			<mensagem>Localize o Kilimanjaro. Coordenadas: 4ºS 37ºE</mensagem>
+		</local>
+		
+		<local>
+			<name>o Coliseu</name>
+			<latitude>41</latitude>
+			<longitude>12</longitude>
+			<imagem>assets/images/coliseu.png</imagem>
+			<mensagem>Localize o Coliseu. Coordenadas: 41ºN 12ºE</mensagem>
+		</local>
+		
+		<local>
+			<name>Tangamandápio</name>
+			<latitude>19</latitude>
+			<longitude>-102</longitude>
+			<imagem>assets/images/tang.png</imagem>
+			<mensagem>Localize Tangamandápio. Coordenadas: 19ºN 102ºW</mensagem>
 		</local>
 	</locais>
 </data>
