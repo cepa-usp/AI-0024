@@ -342,21 +342,23 @@ package
 			{
 				feedbackScreen.setText("Parabéns!\nVocê encontrou " + String(configuracoes[sortedExercise].nome) + "!");
 				currentScore = 100;
-			}
-			else
-			{
+			}else{
 				feedbackScreen.setText("Procure novamente...");
 				currentScore = 0;
 			}
 			
 			if (!respondido){
-				score = (score + currentScore) / nTentativas;
+				score = (score * (nTentativas - 1) + currentScore) / nTentativas;
 				
 				if (score >= 50) completed = true;
 				commit();
 			}
 			
 			respondido = true;
+			
+			btOk.mouseEnabled = false;
+			btOk.alpha = 0.5;
+			btOk.filters = [GRAYSCALE_FILTER];
 		}
 		
 		private function reset(e:MouseEvent):void 
@@ -456,6 +458,7 @@ package
 		private function sphereClickHandler(e:InteractiveScene3DEvent):void 
 		{
 			if (distClick > 2 || !configLoaded) return;
+			if (respondido) return;
 			
 			if (alfineteClick != null) 
 			{
@@ -657,7 +660,7 @@ package
 		private var tutoBaloonPos:Array;
 		private var tutoPos:int;
 		private var tutoPhaseFinal:Boolean;
-		private var tutoSequence:Array = [" Clique e arraste o mouse para alterar a visualização.",
+		private var tutoSequence:Array = ["Clique e arraste o mouse para alterar a visualização.",
 										  "Clique no globo para marcar uma posição.",
 										  "Pressione \"terminei\" quando tiver concluído."];
 										  
@@ -774,7 +777,9 @@ package
 				scormExercise = 1;
 				if (stringScore != "") score = Number(stringScore.replace(",", "."));
 				else score = 0;
-				nTentativas = int(stringTentativas);
+				
+				if (stringTentativas != "") nTentativas = int(stringTentativas);
+				else nTentativas = 0;
 				
 				var success:Boolean = scorm.set("cmi.score.min", "0");
 				if (success) success = scorm.set("cmi.score.max", "100");
