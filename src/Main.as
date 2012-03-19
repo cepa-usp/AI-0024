@@ -660,7 +660,7 @@ package
 		private var tutoBaloonPos:Array;
 		private var tutoPos:int;
 		private var tutoPhaseFinal:Boolean;
-		private var tutoSequence:Array = [" Clique e arraste o mouse para alterar a visualização.",
+		private var tutoSequence:Array = ["Clique e arraste o mouse para alterar a visualização.",
 										  "Clique no globo para marcar uma posição.",
 										  "Pressione \"terminei\" quando tiver concluído."];
 										  
