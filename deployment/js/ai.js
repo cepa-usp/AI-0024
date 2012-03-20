@@ -1,9 +1,6 @@
 var scorm = pipwerks.SCORM; // Seção SCORM
 scorm.version = "2004"; // Versão da API SCORM
 
-var memento = {};
-var session = {};
-
 $(document).ready(init); // Inicia a AI.
 
 /*
