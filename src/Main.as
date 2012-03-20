@@ -137,7 +137,7 @@ package
 		
 		public function Main() 
 		{
-			super(700, 480, false, true);
+			super(700, 480, false, false);
 			if (stage) init(null);
 			else addEventListener(Event.ADDED_TO_STAGE, init);
 			
@@ -692,6 +692,7 @@ package
 		
 		private function closeBalao(e:Event):void 
 		{
+			trace(e.target);
 			/*if (tutoPhaseFinal) {
 				balao.removeEventListener(Event.CLOSE, closeBalao);
 				balao.visible = false;
