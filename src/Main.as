@@ -343,7 +343,7 @@ package
 				feedbackScreen.setText("Parabéns!\nVocê encontrou " + String(configuracoes[sortedExercise].nome) + "!");
 				currentScore = 100;
 			}else{
-				feedbackScreen.setText("Procure novamente...");
+				feedbackScreen.setText("Tente novamente com uma outra localidade. Pressione o botão \"Novo\".");
 				currentScore = 0;
 			}
 			
@@ -659,7 +659,7 @@ package
 		private var pointsTuto:Array;
 		private var tutoBaloonPos:Array;
 		private var tutoPos:int;
-		private var tutoPhaseFinal:Boolean;
+		//private var tutoPhaseFinal:Boolean;
 		private var tutoSequence:Array = ["Clique e arraste o mouse para alterar a visualização.",
 										  "Clique no globo para marcar uma posição.",
 										  "Pressione \"terminei\" quando tiver concluído."];
@@ -667,7 +667,7 @@ package
 		private function iniciaTutorial(e:MouseEvent = null):void 
 		{
 			tutoPos = 0;
-			tutoPhaseFinal = false;
+			//tutoPhaseFinal = false;
 			if(balao == null){
 				balao = new CaixaTexto(true);
 				addChild(balao);
@@ -682,7 +682,7 @@ package
 								[CaixaTexto.LEFT, CaixaTexto.FIRST]];
 			}
 			balao.removeEventListener(Event.CLOSE, closeBalao);
-			feedbackScreen.removeEventListener(Event.CLOSE, iniciaTutorialSegundaFase);
+			//feedbackScreen.removeEventListener(Event.CLOSE, iniciaTutorialSegundaFase);
 			
 			balao.setText(tutoSequence[tutoPos], tutoBaloonPos[tutoPos][0], tutoBaloonPos[tutoPos][1]);
 			balao.setPosition(pointsTuto[tutoPos].x, pointsTuto[tutoPos].y);
@@ -692,24 +692,24 @@ package
 		
 		private function closeBalao(e:Event):void 
 		{
-			if (tutoPhaseFinal) {
+			/*if (tutoPhaseFinal) {
 				balao.removeEventListener(Event.CLOSE, closeBalao);
 				balao.visible = false;
-				feedbackScreen.removeEventListener(Event.CLOSE, iniciaTutorialSegundaFase);
-			}else{
+				//feedbackScreen.removeEventListener(Event.CLOSE, iniciaTutorialSegundaFase);
+			}else{*/
 				tutoPos++;
 				if (tutoPos >= tutoSequence.length) {
 					balao.removeEventListener(Event.CLOSE, closeBalao);
 					balao.visible = false;
-					feedbackScreen.addEventListener(Event.CLOSE, iniciaTutorialSegundaFase);
-					tutoPhaseFinal = true;
+					//feedbackScreen.addEventListener(Event.CLOSE, iniciaTutorialSegundaFase);
+					//tutoPhaseFinal = true;
 				}else {
 					balao.setText(tutoSequence[tutoPos], tutoBaloonPos[tutoPos][0], tutoBaloonPos[tutoPos][1]);
 					balao.setPosition(pointsTuto[tutoPos].x, pointsTuto[tutoPos].y);
 				}
-			}
+			//}
 		}
-		
+		/*
 		private function iniciaTutorialSegundaFase(e:Event):void 
 		{
 			if(tutoPhaseFinal){
@@ -717,7 +717,7 @@ package
 				balao.setPosition(pointsTuto[1].x, pointsTuto[1].y);
 				tutoPhaseFinal = false;
 			}
-		}
+		}*/
 		
 		
 		/*------------------------------------------------------------------------------------------------*/
