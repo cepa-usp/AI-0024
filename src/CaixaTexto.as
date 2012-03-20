@@ -10,6 +10,7 @@ package
 	import flash.text.TextField;
 	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFormat;
+	import flash.utils.setTimeout;
 	/**
 	 * ...
 	 * @author Alexandre
@@ -81,9 +82,16 @@ package
 			stage.addEventListener(MouseEvent.MOUSE_DOWN, clickHandler);
 		}
 		
+		private var clickEnabled:Boolean = true;
 		private function clickHandler(e:MouseEvent):void 
 		{
-			//trace("clicou em: " + e.target);
+			if (clickEnabled) {
+				clickEnabled = false;
+				setTimeout(enableClick, 100);
+			}else {
+				return;
+			}
+			
 			if (e.target is NextButton) {
 				if (textArray.length >= 1) {
 					setText(textArray, sideForArrow, alignForArrow, currentWidth);
@@ -97,6 +105,11 @@ package
 				}
 				else this.visible = false;
 			}
+		}
+		
+		private function enableClick():void
+		{
+			clickEnabled = true;
 		}
 		
 		public function setText(text:*, side:String = null, align:String = null, width:Number = 200):void
